@@ -1,0 +1,32 @@
+Function - readVirtualMemory(vAddr, data, offset, length) {
+    if offset < 0 or length < 0 or offset+length != data.length then return 0
+
+    // Handle reads accross page boundaries with the while loop
+    while less than length bytes have been read {
+        PhysPageAddr = PageNum*PageSize + offset
+        If PhysPageAddr not in range or translation entry isnt valid -> return 0
+        pageLimitAddr = (translationEntry.ppn+1)*PageSize
+        amount = min(pageLimitAddr-PhysPageAddr, length-bytesRead, memory.length-PhysPageAddr)
+        read amount bytes from physical memory, at location PhysPageAddr, into data at an offset of (offset+bytesRead) bytes.
+        increment bytesRead by amount
+    }
+
+    return length upon success or 0 if failure
+}
+
+Function - writeVirtualMemory(vAddr, data, offset, length) {
+    if offset < 0 or length < 0 or offset+length != data.length then return 0
+
+    // Handle writes accross page boundaries with the while loop
+    while less than length bytes have been written {
+        PhysPageAddr = PageNum*PageSize + offset
+        If PhysPageAddr not in range or translation entry is read only -> return 0
+        If translation entry is invalid, then set its ppn = UserKernel.get_free_page() and mark it valid
+        pageLimitAddr = (translationEntry.ppn+1)*PageSize
+        amount = min(pageLimitAddr-PhysPageAddr, length-bytesWritten, memory.length-PhysPageAddr)
+        write amount bytes to physical memory, at location PhysPageAddr, from data at an offset of (offset+bytesWritten) bytes and set the translation entry's dirty bit to true
+        increment bytesWritten by amount
+    }
+
+    return length upon success or 0 if failure
+}

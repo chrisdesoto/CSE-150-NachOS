@@ -1,0 +1,154 @@
+Task 1:
+	join 2 threads
+	thread 1 & thread 2
+	pause execution of 2 thread until 1st is complete
+	basic logical implementation in KThread class
+	
+	join: 
+		bool status = get interrupt status;
+		disable interrupts();
+		if (currentThread != this.status && this.status != fininshed)
+		{
+			joinQueue.waitForAccess(currentThread); 
+		//Private Static ThreadQueue <>joinQueue = New Queue (provides protection) 
+			currentThread.sleep();
+			
+		}
+		restorInterruptState(status);
+	finish: code here before (modified not implemented)
+		KThread waiter;
+		while ((waiter = joinQueue.nextThread()) != null)
+		{
+			waiter.ready();
+		}	
+
+Task 2:
+	abstraction for Task 4 (speaker/listener functionality)
+	resource claiming for multiple threads (synchronization)
+	similar functionality to locks 
+	function P and V from Semaphore mapped to Lock class acquire and release respectively
+
+	1:
+		c.sleep();
+	2:
+		c.wakeAll(); // allows to save competing resources but mainly used for synchronization
+	much like a Token Ring distribution Network topology, the condition is analogous to the Token itself and provides an interface to wake other participants in order to provide a method for synchronization 
+
+Task 3:
+	waitUntil function waits until the timer exceeds x-ticks
+	design decision: utilized built-in Java priority queue 
+	issue is that the timer executes only once every 500 clock ticks 
+	current time retrievable through machine.timer function call .getTime
+	time elapsed can be calculated by Machine.timer.getTime() + x // where x is the number of ticks
+	a resolution can be a priority Queue based on time and storing the thread and the time in the queue
+
+	WaitUntil(x)
+	{
+		wT = Machine.timer.getTime() + x; // WT is WaitTime
+		priorityQueue.push(newWthread(WT, currentThread));
+		currentThread.sleep();
+	}
+	timer.Interrupt
+	{
+		while (pQue.peak().WT >= currentTime)
+		{
+			pQue.remove().ready();
+		}
+	}
+
+Task 4:
+	Similar to SynchList with multiple senders and multiple receivers only one instance of a Lock for the entirety of the instance of the Communicators
+	
+	Private Static List<Integer> sounds
+	Lock Microphone
+	Condition Participants
+	speak(int a)
+	{
+		microphone.acquire();
+		sound.append(a);
+		participants.wake();
+		participants.sleep();
+		microphone.release();
+	}
+	int listen()
+	{
+		microphone.acquire();
+		while (sound.empty())
+		{
+			participants.sleep();
+		}
+		sounds = sounds[0]; // participants.wakeAll()
+		return;
+	}	
+	/* 
+	test needs to ensure that proper speaker returns for  consumed word
+	T1 speaks 1
+	T2 speaks 2
+	T1 should return when 1 is consumed by the listeners and T2 should return when 2 is consumed 
+	what if multiple speakers speak the same word? does the order matter??	
+	 */
+
+Task 5:
+		
+	private LinkedList waitQueue = new LinkedList();
+	int getEffectivePriority()
+	{
+		int sum = this.priority;
+		for (int j = 0; j < waitQueue.size(); j++)
+		{
+			KThread curr = waitQueue.get(j);
+			sum += curr.schedulingState.priority;
+		}
+		return sum;
+	}
+
+	void setPriority(int priority)
+	{
+		this.priority = priority;
+	}
+
+	void acquire(PriorityQueue waitQueue)
+	{
+		Lib.assertTrue(waitQueue.isEmpty());
+	}
+
+	void waitForAccess(PriorityQueue waitQueue)
+	{
+		waitQueue.waitQueue.add(this);
+	}
+
+	KThread nextThread()
+	{
+		int max = 0, position = -1;
+		for(int j = 0; j < waitQueue.size() ; j++)
+		{
+		if (waitQueue.get(j) > max)
+ 			position = j;
+		}
+		if (position == -1)
+		{
+			return NULL;
+		}
+		return waitQueue.remove(position);
+	}
+
+
+
+Task 6:
+	queues for children and queues for adults, children go into boat for efficiency (not optimality)
+	once boat comes back children will be pilots at all times 
+	boat grader verifies that the solution is working properly
+
+
+
+
+
+
+
+
+
+
+
+
+
+

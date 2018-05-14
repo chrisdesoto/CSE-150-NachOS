@@ -1,0 +1,19 @@
+private int handleRead(fd, bufferAddr, count)
+{
+    If count < 0 or bufferAddr isn't a valid VM address or fd isn't a valid file descriptor, then return -1;
+    Read <count> bytes from the file described by fd into a byte buffer of size: count.
+    If the file cannot be read or there is an error, return -1
+    Write that byte buffer to bufferAddr to exchange information between user process and kernel
+    If bufferAddr cannot be written to or the number of bytes written differs from the amount read from the file, or there is an error, return -1
+    If there is no error then return the number of byes read from the fd
+}
+
+private int handleWrite(fd, bufferPtr, count)
+{
+    If count < 0 or bufferAddr isn't a valid VM address or fd isn't a valid file descriptor, then return -1;
+    Read the virtual memory contents stored at the bufferPtr virtual address into a byte buffer of size: count, to exchange information between user process and kernel
+    If there is an error, then return -1;
+    Write the contents of that buffer to the file defined by the file descriptor: fd.
+    If there is an error, then return -1
+    If there is no difference between the number of bytes read from VM and the number of bytes written to the fd, then return the number of bytes written to the fd.
+}

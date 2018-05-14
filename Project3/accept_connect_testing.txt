@@ -1,0 +1,11 @@
+For testing accept and connect, one way that was implemented was inside the selfTest() function of NetKernel, making a NetProcess instance
+to be able to call the handleAccept() and handleConnect() functions through the handleSyscall() function within every NetProcess. 
+The sample test that was implemented involved connecting a host(0), port(0) with host(1), port(0). To have one machine instance call
+the handleConnect() function and the other call the handleAccept() function, an if statement was also put within the selfTest() function 
+of the NetKernel to check what machine instance you were put in. The sample test had it set up so that host(1) would be calling 
+handleConnect() to the host(0), port(0) and host(0) would be calling handleAccept() on port(0). To make sure that the messages weren't 
+sent before the, hosts/machine instances, were activated the implementation of the code waiting for input to follow through was left as
+is. So as to make sure ordering was successful, pressing enter on host(1) (pressing enter in the console), because it's calling connect, 
+will send syn message to host(0) so when you press enter on host(0)'s console it should call accept and notice that there's a pending
+connection on that port. To start multiple machine instances on intellij, just simply press the run machine button as many times as
+you want machine instances. 

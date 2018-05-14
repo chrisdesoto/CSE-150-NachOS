@@ -1,0 +1,238 @@
+Task 1:
+
+Task I Pseudocode:
+
+private int handleCreat(int nameAddr) {
+	// Find available file descriptor and assign
+	if no available file desciptor, return -1
+	// Translate the memory address of the filename string
+	if filename string is null or of length 0, return -1
+	// Open file with the provided StubFileSystem passing create flag (true)
+	if the returned file is null, return -1
+	// Add the file to the array of open files
+		return; /* assigned file descriptor */
+}
+
+private int handleOpen(int nameAddr) {
+	Find available file descriptor and assign
+	if no available file desciptor, return -1
+	Translate the memory address of the filename string
+	if filename string is null or of length 0, return -1
+	Open file with the provided StubFileSystem passing create flag (false)
+	if the returned file is null, return -1
+	Add the file to the array of open files
+	return assigned file descriptor
+}
+
+private int handleClose(int fileDescriptor) {
+	Check if valid file descriptor
+	if file descriptor is invalid, return -1
+	Retrieve the corresponding file
+	if file is already closed (not open), return -1
+	Close the file
+	Free the file descriptor
+	return 0
+}
+
+private int handleUnlink(int nameAddr) {
+	Translate the memory address of the filename string
+	if filename string is null or of length 0, return -1
+	Call the remove function on the file and get the result
+	if the file is not removed, return -1
+	return 0
+}
+
+
+private int handleRead(int memAddr) {
+	//Find available file and make sure its not null
+	// The system can be invoked from the root process only
+	if another process wants to invoke the halt() function
+		make sure it is ignored
+		continue
+	// read the virtual memory address to exchange information between the user process and kernel.
+	if the file cannot be read or there is an error
+		return -1
+}
+
+private int handleWrite() {
+	// Make sure when a process is started, file descriptors are 0 or 1 to indicate.
+	// Find an open file that is read and that is not null.
+	// read virtual memory and write virtual memory to exchange information between user and kernel.
+	if an error occurs in the system 
+		return -1
+	if there is no error
+		return correct virtual address
+	/* The system can use open for 
+		writing console to write it 
+		and send it to the virtual memory
+	*/
+}
+
+Task 2:
+
+// UserKernel
+
+
+Global LinkedList<Integer> freePages;
+
+function: int get_free_page() -> return freePages.top()
+
+function: add_free_page(page_number) -> freePages.add(page_number)
+
+// UserProcess
+
+
+Function - readVirtualMemory(***)
+{
+	Physical_page_address = page_number*page_size  +  offset
+	check if physical page is in range -> if not return 0
+	amount = min(length, memory.length-vaddr)
+	System.arraycopy()
+	return amount
+}
+
+Function - writeVirtualMemory()
+{
+    // calculate the virtual page from the virtual address
+    Physical_page_address = page_number*page_size + offset
+    // Check to see if the physical page number is out of range
+    if (page_number < 0 or page_number >= processor.getNumPhysPages())
+    if not in range return 0 
+    // check and return amount 
+}
+
+Function loadSections()
+{
+	for section in coff.sections:
+	vpn = section.getFirstVPN
+	translation_entry = pageTable(vpn)
+	section.loadPage(id, translation_entry.ppn)
+	return true
+}
+
+Task 3:
+
+//  UserProcess.java
+
+exit exec join -> syscall numbers
+ 1    2    3
+
+void handleExit(int status) {
+        // Status is passed by child and should be passed up to whoever is calling join
+        // Dealloc file descriptors
+        // file descriptors are deallocated and no longer uses
+        for each i in openFiles {
+            if it is null {
+                openFiles[i].close()
+            }
+        }
+        // Iterate through each child process and remove the pointer to the parent
+        for each i in the children keyset {
+            children.get(i).parentPID = -1
+        }
+        // Deallocate Virtual memory
+        unloadSections()
+        // set the status code
+	// invoke exit process
+        UserKernel.exited(this, status)
+        // If this is the root process, then call finish on machine
+        if (this is the root process) {
+		finish invoked on machine
+		Kernel.kernel.terminate();
+        }
+        // Signal to parent that this process called exit
+        signaller.V()
+        UThread.currentThread().finish()
+    }
+
+
+
+int handleExec(int fnamePtr, int argc, int argvPtrPtr) {
+        // Retrieve filename of executable, then sanity check it and argument length
+        String filename = readVirtualMemoryString(fnamePtr, 256) // 256 Bytes
+        if (argc >= 0 && filename != null && filename.indexOf(".coff") == filename.length() - ".coff".length()) {
+            // Obtain the pointers to the argv char buffers
+            // set offset to 0
+            while (offset < argc * 4) {
+                offset += readVirtualMemory(. . .)	
+            for each i in argc {
+                // set argv pointer array Lib.bytesToInt(. . .)
+		argvPtr[i] = bytesToInt(argvb, 4*i, 4)
+            }
+            // Retrieve the contents of argv and store them in a string array
+            String[] argv = new String[argc];
+            for each i in argc {
+                argv[i] = readVirtualMemoryString(. . .)
+            }
+            // Set up new process and initialize other variables and file descriptor
+            // Set up new process' state, declare it as a child, and initialize required variables
+            UserProcess child = newUserProcess()
+            child.pid = UserKernel.newPID()
+            child.parentPID = pid
+            children.put(child.pid, child)
+            child.execute(filename, argv)
+            return child.pid
+        } else /* error with filename */ {
+            return -1;
+        }
+    }
+
+
+int handleJoin(int procId, int statusPtr) {
+        if child process ID doesn't match {
+            return -1;
+        }
+        // Invoke child process's semaphore to wait for it to call exit
+        // if it already called exit, then it has already called V and P
+        // will automatically return.
+        children.get(procId).signaller.P()
+        // Write status value
+        int status = children.get(procId).statusOnExit
+        // set offset to 0
+        while (offset != 4) {
+            offset += writeVirtualMemory(. . .)	
+        }
+        children.remove(procId)
+        if status is not -1) {
+            return 1;
+        }
+        return 0;
+    }
+
+
+Task 4:
+
+class ticketInterval 
+{
+	threadState ticketOwner;
+	int startInterval, endInterval;
+	
+	ticketInterval(threadState ticketOwner, int startInterval, int endInterval)
+	{
+		this.ticketOwner = ticketOwner;
+		this.startInterval = startInterval;
+		this.endInterval = endInterval;
+	}
+
+	Boolean checkInterval(int ticket)
+	{
+		return (startInterval < ticket && ticket < endInterval) || ticket == startInterval || ticket == endInterval;
+	}
+}
+
+ThreadState nextThread()
+{
+	int maxRange = 0;
+	List<ticketInterval> ticketList;
+	for (int i = 0; i < threadStateQueue.size(); i++)
+	{
+		ticketList.add(threadStateQueue.get(i),maxRange+1 ,maxRange+threadStateQueue.get(i).getWinningPriority());
+		maxRange += threadStateQueue.get(i).getWinningPriority();
+	}
+	int ticket = rand(1,maxRange);
+	for (int i = 0; i < ticketList.size(); i++)
+	{
+	if (ticketList.get(i).checkInterval(ticket))
+		return threadQueue.remove(ticketList.get(i).ticketOwner); 
+	}
+}

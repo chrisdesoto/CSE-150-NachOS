@@ -1,0 +1,50 @@
+
+* Data Structures of UserProcess:
+    HashMap<Integer, UserProcess> children
+    int pid, parentPID, statusOnExit
+    Semaphore signaller = new Semaphore(0)
+* Data Structures of UserKernel:
+    int numProcs = 0;
+    nextPID = 0;
+
+* Syscalls for Task 3 defined in UserProcess.java
+handleExit(status):
+    Close any open files in the fd table
+    // Remove each child processes' pointer to the this proc
+    For each child in children:
+        child.parentPID = -1
+    unloadSections()
+    statusOnExit = status
+    UserKernel.numProcs--;
+    if(UserKernel.numProcs == 0):
+        Terminate the kernel
+    //Signal to the parent that this process called exit
+    signaller.V();
+    Finish the main thread of this process
+
+handleExec(fnamePtr, argc, argvPtrPtr):
+    filename = read the string pointed to by fnamePtr. Upon error, return -1
+    if argc < 0 or filename is null or filename doesnt end with .coff then return -1
+    read argc integers from memory location argvPtrPtr then read the strings pointed to by those integers to retrieve the argv contents to pass to the child process, upon error, return -1
+
+    UserProcess child = newUserProcess()
+    child.pid = UserKernel.newPID()
+    child.parentPID = pid;
+    children.put(chile.pid, child)
+    
+    set file descriptor entries 0 and 1 to the console's Input and Output
+    make copies of the processes' file descriptors for the child
+
+    If the child successfully executes the program defined by filename with parameters argv, then return child.pid, otherwise reverse the child setup and return -1
+
+handleJoin(procID, statusPtr):
+    // Verify this process is calling join on a pid it is the parent of
+    if(!children.contains(procID)) -> return -1
+
+    child = children.get(procID)
+    child.signaller.P() // Sleep while waiting for the child process to exit
+    status = child.statusOnExit
+    write status to the virtual memory address defined by statusPtr, upon error, return -1
+    children.remove(procID)
+    if status indicates child exited abnormally, then return 0, otherwise,
+    return 1

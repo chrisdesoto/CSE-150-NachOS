@@ -1,0 +1,40 @@
+Testing for Task 2 was performed on multiple aspects of the chat server/client applications. These tests inlcuded chat message length, server client capacity, client argument passing, and client disconnection. 
+
+In order to test chat string length we inputted strings of increasing sizes from 1 to 300. 
+	"f"
+	"ffffffffff"
+	"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+	etc...
+In doing so we observed that the printf statement utilized from the given printf.c file has a maximum buffer size of 256 bytes. Therefore, given our implementation, the maximum chat message size is 256 bytes.
+
+The test for the server's client capacity was simple and involved opening eight chat clients communicating on a single server. Each client was tested and N-way communication was verified. This exceeded the project specification of at least 3 clients. Note: Our implemention supports up to 16 clients communicating on a single server.
+
+Client argument testing was slightly unconventional. The project specication did not specify any command-line arguments for the chat client, however, the system call, connect(int host, int portNumber), required the inclusion of the host socket. Our implementation, therefore, accepts a single integer via the command-line and assigns it to be passed as the host socket when the connect system call is made. In order to test this, Machine.java and UserKernel.java were modified and functionality for command-line arguments was implemented. Within Machine.java, a new method was created to return the process name and command-line arguments a string array:
+
+	public static String[] getShellProgramNameAndArgs() {
+		if (shellProgramName == null)
+			shellProgramName = Config.getString("Kernel.shellProgram");
+
+		Lib.assertTrue(shellProgramName != null);
+		return shellProgramName.split(" ");
+	}
+
+Within UserKernel.java the run() method was modified as such:
+
+    public void run() {
+        super.run();
+        UserProcess process = UserProcess.newUserProcess();
+        String[] shellProgramAndArgs = Machine.getShellProgramNameAndArgs();
+        String[] shellArgs = new String[]{};
+        if(shellProgramAndArgs.length > 1) {
+            shellArgs = Arrays.copyOfRange(shellProgramAndArgs, 1, shellProgramAndArgs.length);
+        }
+        Lib.assertTrue(process.execute(shellProgramAndArgs[0], shellArgs));
+        KThread.currentThread().finish();
+    }
+
+This allowed command-line arguments to be passed when running the chat client (this argument specifies a host socket number of 0):
+	java nachos.machine.Machine -x 'chat.coff 0'
+In doing so, we we're able to verify our implemention. Note: The above code is not included in the final submission code and was implemented temporarily, strictly for testing purposes.
+
+Client disconnection was tested by passing the specified '.' message within the chat client. This was verified via printf statements from the server and clent. The clients were observed to send the disconnect message to the server and immediately exit. The server was observed to call the close() system call and assign -1 to the clients file descriptor, freeing the slot with in the array of clients to be used again should another client connect.
